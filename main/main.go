@@ -4,7 +4,7 @@ import (
 	"context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	pb "grpc/com.deali/golang-grpc"
+	pb "grpc/com.deali/grpc"
 	"io"
 	"log"
 	"net"

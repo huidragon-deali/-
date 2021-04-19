@@ -1,9 +1,9 @@
-
-
-프로토콜 버퍼 컴파일러 설치
+프로토콜버퍼 컴파일러 설치 (존재한다면 pass)
 ```
 go install google.golang.org/protobuf/cmd/protoc-gen-go
 ```
+
+goland 프로젝트 GOPATH 추가
 
 프로토콜 버퍼파일 빌드
 ```
@@ -18,5 +18,3 @@ protoc --go-grpc_out=. \
        --go_out=.      \
         proto/*.proto  \  // 전체 빌드
 ```
-
-
