@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	pb "grpc/com.deali/grpc"
@@ -63,6 +64,30 @@ func (s * service) BiStream(stream pb.GrpcService_BiStreamServer) error {
 	}
 }
 
+// unaryMiddleware
+func unaryMiddleware() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+
+		log.Print(ctx)
+		log.Print(req)
+		log.Print(info)
+
+		resp,err = handler(ctx,req)
+
+		return resp, err
+	}
+}
+
+// streamMiddleware
+func streamMiddleware() grpc.StreamServerInterceptor {
+	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+
+		log.Print(info)
+		err := handler(srv, ss)
+		return err
+	}
+}
+
 // grpc config
 func main() {
 
@@ -71,7 +96,14 @@ func main() {
 		log.Fatalf("fail to listen #{err}")
 	}
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.StreamInterceptor(
+			grpc_middleware.ChainStreamServer(
+				streamMiddleware())),
+		grpc.UnaryInterceptor(
+			grpc_middleware.ChainUnaryServer(
+				unaryMiddleware())),
+		)
 	pb.RegisterGrpcServiceServer(server, &service{})
 	reflection.Register(server)
 
@@ -79,3 +111,4 @@ func main() {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
+
